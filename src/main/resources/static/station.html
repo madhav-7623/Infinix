@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ChargeSync · Station portal</title><link rel="stylesheet" href="/portal.css"></head>
+<body data-page="station" data-role="station">
+  <header class="topbar"><div class="shell nav">
+    <a class="brand" href="/"><span class="brand-mark">C</span>ChargeSync</a>
+    <nav class="navlinks"><a href="/">Driver portal</a><a class="active" href="/station.html">Station portal</a><a href="/simulation.html">Grid simulation</a><a href="/opendss-results.html">OpenDSS</a></nav>
+    <span class="live"><i class="dot"></i> Virtual station network</span>
+  </div></header>
+  <main class="shell station-wrap">
+    <section class="hero"><div class="eyebrow">⌁ Virtual station operations</div><h1>Publish capacity. Manage every dock.</h1><p>Each station has exactly three sockets: one Eco, one Medium, and one Hyper. Set the station location and output, and manage each socket’s connector and availability.</p></section>
+    <div class="station-toolbar"><select id="stationSelect" aria-label="Your station"></select><button id="advanceButton" class="btn ghost" type="button">Advance this station by 5 min</button></div>
+    <div class="statcards" id="stationStats"></div>
+    <div class="two-col">
+      <section class="card">
+        <h2 id="settingsTitle">Station settings</h2><p class="sub">These values are shared immediately with the driver portal. Energy rates are fixed by mode: Eco ₹18/kWh, Medium ₹21/kWh, Hyper ₹25/kWh.</p>
+        <form id="stationForm">
+          <div class="station-settings">
+            <div class="field"><label for="stationName">Station name</label><input id="stationName" required></div>
+            <div class="field"><label for="stationArea">Area / address</label><input id="stationArea" required></div>
+            <div class="field"><label for="stationLatitude">Latitude</label><input id="stationLatitude" type="number" min="-90" max="90" step="any" required></div>
+            <div class="field"><label for="stationLongitude">Longitude</label><input id="stationLongitude" type="number" min="-180" max="180" step="any" required></div>
+            <div class="field"><label for="stationMaxOutput">Maximum station output (kW)</label><input id="stationMaxOutput" type="number" min="1" max="1000" step="1" required></div>
+          </div>
+          <div class="section-head"><h2>Docks</h2><span>Connector and per-dock limit</span></div>
+          <div id="dockRows" class="dock-list"></div>
+          <div class="section-head"><h2>Replace socket</h2><span>Three sockets per station</span></div>
+          <div class="dock-form">
+            <div><span class="mini-label">Dock ID</span><input id="newDockId" placeholder="Auto"></div>
+            <div><span class="mini-label">Connector</span><select id="newDockConnector"><option>CCS2</option><option>Type 2</option><option>CHAdeMO</option></select></div>
+            <div><span class="mini-label">Output (kW)</span><input id="newDockKw" type="number" min="1" max="500" value="120"></div>
+            <div><span class="mini-label">Initial status</span><select id="newDockStatus"><option>AVAILABLE</option><option>OCCUPIED</option><option>MAINTENANCE</option></select></div>
+            <button class="btn secondary" id="addDockButton" type="button">Add</button>
+          </div>
+          <div class="submit-row"><span id="hardwareStatus" class="hint">Virtual station · dock status is simulated in this portal.</span><button class="btn" id="saveStationButton" type="submit">Save station settings</button></div>
+        </form>
+      </section>
+      <section class="card">
+        <h2>Bookings and power sharing</h2><p class="sub">Active sessions are assigned a share up to station capacity, dock limit and vehicle limit.</p>
+        <div id="stationBookings" class="booking-list"><div class="empty">Select a station to view its bookings.</div></div>
+        <div class="notice">“Advance demo by 5 min” simulates energy delivery, updates battery and cost, and releases a dock when a session completes or its departure time expires.</div>
+      </section>
+    </div>
+    <footer class="footer">Virtual station mode: dock status and charging sessions are simulated and shared with the driver page by this local demo service. Changes and bookings are held in memory and reset when the Java app restarts. Coordinates in seeded stations are synthetic.</footer>
+  </main>
+  <div id="toast" class="toast"></div>
+  <script src="/auth.js"></script>
+  <script src="/portal.js"></script>
+</body>
+</html>

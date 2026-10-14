@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ChargeSync · Driver portal</title><link rel="stylesheet" href="/portal.css">
+</head>
+<body data-page="driver" data-role="driver">
+  <header class="topbar"><div class="shell nav">
+    <a class="brand" href="/"><span class="brand-mark">C</span>ChargeSync</a>
+    <nav class="navlinks"><a class="active" href="/">Driver portal</a><a href="/station.html">Station portal</a><a href="/simulation.html">Grid simulation</a><a href="/opendss-results.html">OpenDSS</a></nav>
+    <span class="live"><i class="dot"></i> Virtual station network</span>
+  </div></header>
+  <main class="shell">
+    <section class="hero"><div class="eyebrow">⚡ EV charging, coordinated</div><h1>Plan your charge. Make your next stop.</h1><p>Tell us where you are, where you’re headed, and when you need to leave. ChargeSync checks compatible docks, shares station power by urgency, and finds another nearby station when yours is full.</p></section>
+    <div class="grid">
+      <section class="card">
+        <h2>Find and book a charge</h2><p class="sub">Trip range, battery level, connector and departure time help estimate the charge you need.</p>
+        <form id="bookingForm">
+          <div class="formgrid">
+            <div class="field"><label for="driverName">Your name</label><input id="driverName" value="Demo Driver" required></div>
+            <div class="field"><label for="destination">Destination</label><input id="destination" placeholder="e.g. Mysuru" required></div>
+            <div class="field"><label for="locationMode">Your current location</label><select id="locationMode"><option value="station">Select a station</option><option value="coordinates">Enter coordinates</option></select></div>
+            <div class="field" id="stationLocationField"><label for="currentStation">Stations</label><select id="currentStation" required><option value="">Choose a station…</option></select></div>
+            <div class="field" id="latField" style="display:none"><label for="currentLatitude">Current latitude</label><input id="currentLatitude" type="number" step="any" value="12.0000"></div>
+            <div class="field" id="lonField" style="display:none"><label for="currentLongitude">Current longitude</label><input id="currentLongitude" type="number" step="any" value="77.0000"></div>
+            <div class="field"><label for="connector">Vehicle connector</label><select id="connector"><option>CCS2</option><option>Type 2</option><option>CHAdeMO</option></select></div>
+            <div class="field"><label for="chargeMode">Charging speed</label><select id="chargeMode"><option value="ECO">Eco · max 20%</option><option value="NORMAL" selected>Medium · max 25%</option><option value="HYPER">Hyper · max 55%</option></select></div>
+            <div class="field"><label for="departureMinutes">Leaving in (minutes)</label><input id="departureMinutes" type="number" min="5" max="1440" value="120" required></div>
+            <div class="field"><label for="batteryPercent">Current battery (%)</label><input id="batteryPercent" type="number" min="0" max="99" step="1" value="24" required></div>
+            <div class="field"><label for="batteryCapacityKwh">Battery capacity (kWh)</label><input id="batteryCapacityKwh" type="number" min="5" max="300" step="1" value="60" required></div>
+            <div class="field"><label for="targetSoc">Charge target (%)</label><input id="targetSoc" type="number" min="1" max="100" value="80" required></div>
+            <div class="field"><label for="vehicleMaxKw">Vehicle max charge (kW)</label><input id="vehicleMaxKw" type="number" min="1" max="500" value="100" required></div>
+            <div class="field"><label for="estimatedTripKm">Trip distance (km)</label><input id="estimatedTripKm" type="number" min="0" max="5000" value="180" required></div>
+            <div class="field"><label for="rangeAt100Km">Vehicle range at 100% (km)</label><input id="rangeAt100Km" type="number" min="1" max="2000" value="350" required></div>
+
+          </div>
+          <div class="submit-row"><span class="hint">Each station has its own 120 kW output capacity. Eco, Medium, and Hyper sessions use 20%, 25%, and 55% of their station capacity, subject to vehicle and socket limits.</span><button class="btn" id="bookButton" type="submit">Find a dock and book&nbsp; →</button></div>
+        </form>
+        <div id="bookingResult" class="result"></div>
+        <div class="notice">Charging priority is a demo scheduling estimate. Route distance to a redirected station is straight-line distance; it is not turn-by-turn navigation. Demo station coordinates are synthetic.</div>
+      </section>
+      <aside class="card">
+        <h2>Station details</h2><p class="sub">Each station has its own output capacity. Select a station to see its availability, power, and energy rates.</p>
+        <div id="stationList" class="station-list"><div class="empty">Choose a station to see its details.</div></div>
+        <div class="section-head"><h2>Your bookings</h2><span>Updates automatically</span></div>
+        <div id="driverBookings" class="booking-list"><div class="empty">No bookings yet.</div></div>
+      </aside>
+    </div>
+    <footer class="footer">ChargeSync hackathon demo · Browser portals share in-memory data while the local Java app is running; restarting the app resets demo bookings and station edits. The connector simulates dock data and is not connected to physical chargers or an OCPP gateway. <a href="/simulation.html">Open grid simulation</a> · <a href="/dss/results.html">OpenDSS feeder results</a></footer>
+  </main>
+  <div id="toast" class="toast"></div>
+  <script src="/auth.js"></script>
+  <script src="/portal.js"></script>
+</body>
+</html>

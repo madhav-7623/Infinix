@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ChargeSync · Live grid</title>
+  <link rel="stylesheet" href="/portal.css">
+  <style>
+    .live-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 22px}
+    .live-grid .statcard{min-width:0}
+    .live-stations,.live-bookings{display:grid;gap:10px}
+    .live-station{border:1px solid var(--line);border-radius:13px;padding:15px;background:#fff;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+    .live-station strong{font:700 15px Manrope,sans-serif}
+    .live-station p,.live-booking p{font-size:12px;color:var(--muted);line-height:1.55;margin:6px 0 0}
+    .live-booking{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff}
+    .section-head{margin:24px 0 12px}
+    .updated{color:var(--muted);font-size:12px}
+    @media(max-width:700px){.live-grid{grid-template-columns:1fr}.live-station{grid-template-columns:1fr}.live-station .station-stats{justify-content:flex-start}}
+  </style>
+</head>
+<body data-role="any">
+  <header class="topbar"><div class="shell nav">
+    <a class="brand" href="/"><span class="brand-mark">C</span>ChargeSync</a>
+    <nav class="navlinks"><a href="/">Driver portal</a><a href="/station.html">Station portal</a><a class="active" href="/simulation.html">Grid simulation</a><a href="/opendss-results.html">OpenDSS</a></nav>
+    <span class="live"><i class="dot"></i> Live station network</span>
+  </div></header>
+  <main class="shell station-wrap">
+    <section class="hero"><div class="eyebrow">⌁ ChargeSync · live grid</div><h1>Live charging activity</h1><p>Current station availability and active vehicle sessions from the driver and station portals.</p></section>
+    <section class="live-grid" aria-label="Live totals">
+      <div class="statcard"><span>Active vehicles</span><strong id="activeCount">—</strong></div>
+      <div class="statcard"><span>Station power in use</span><strong id="powerInUse">—</strong></div>
+      <div class="statcard"><span>Available sockets</span><strong id="availableSockets">—</strong></div>
+    </section>
+    <div class="section-head"><h2>Stations</h2><span class="updated" id="updatedAt">Loading live data…</span></div>
+    <section class="live-stations" id="liveStations"><div class="empty">Loading stations…</div></section>
+    <div class="section-head"><h2>Live vehicles</h2><span>Charging or waiting for power</span></div>
+    <section class="live-bookings" id="liveBookings"><div class="empty">Loading active vehicles…</div></section>
+    <p class="footer">Live data refreshes automatically every five seconds.</p>
+  </main>
+  <script src="/auth.js"></script>
+  <script src="/simulation.js"></script>
+</body>
+</html>

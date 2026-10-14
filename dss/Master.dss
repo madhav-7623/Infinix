@@ -1,0 +1,40 @@
+Clear
+New Circuit.ChargeSync phases=3 bus1=SourceBus basekv=12.47 pu=1.0 frequency=60
+Edit Vsource.Source bus1=SourceBus.1.2.3 basekv=12.47 pu=1.0 phases=3 frequency=60 MVAsc3=1000 MVAsc1=1000
+
+New Line.Feeder phases=3 bus1=SourceBus.1.2.3 bus2=PrimaryBus.1.2.3 length=1.0 units=km r1=0.25 x1=0.30 r0=0.75 x0=0.90 c1=0 c0=0 normamps=300
+New Transformer.Service phases=3 windings=2 xhl=4
+~ wdg=1 bus=PrimaryBus.1.2.3 conn=delta kv=12.47 kva=63 %r=0.6
+~ wdg=2 bus=StationBus.1.2.3 conn=wye kv=0.48 kva=63 %r=0.6
+
+New LineCode.ServiceLV nphases=3 r1=0.30 x1=0.08 r0=0.70 x0=0.20 c1=0 c0=0 units=km
+New Line.Secondary phases=3 bus1=StationBus.1.2.3 bus2=EVBus.1.2.3 linecode=ServiceLV length=0.10 units=km normamps=200
+
+New LoadShape.BaseShape npts=288 mInterval=5 csvfile=profiles\base.csv
+New LoadShape.EV01 npts=288 mInterval=5 csvfile=profiles\ev01.csv
+New LoadShape.EV02 npts=288 mInterval=5 csvfile=profiles\ev02.csv
+New LoadShape.EV03 npts=288 mInterval=5 csvfile=profiles\ev03.csv
+New LoadShape.EV04 npts=288 mInterval=5 csvfile=profiles\ev04.csv
+New LoadShape.EV05 npts=288 mInterval=5 csvfile=profiles\ev05.csv
+New LoadShape.EV06 npts=288 mInterval=5 csvfile=profiles\ev06.csv
+
+New Load.Base phases=3 bus1=StationBus.1.2.3 conn=delta kv=0.48 kw=34 pf=0.97 model=1 daily=BaseShape
+New Load.EV01 phases=1 bus1=EVBus.1.0 conn=wye kv=0.277 kw=11 pf=0.99 model=1 daily=EV01
+New Load.EV02 phases=1 bus1=EVBus.2.0 conn=wye kv=0.277 kw=7 pf=0.99 model=1 daily=EV02
+New Load.EV03 phases=1 bus1=EVBus.3.0 conn=wye kv=0.277 kw=11 pf=0.99 model=1 daily=EV03
+New Load.EV04 phases=1 bus1=EVBus.1.0 conn=wye kv=0.277 kw=7 pf=0.99 model=1 daily=EV04
+New Load.EV05 phases=1 bus1=EVBus.2.0 conn=wye kv=0.277 kw=11 pf=0.99 model=1 daily=EV05
+New Load.EV06 phases=1 bus1=EVBus.3.0 conn=wye kv=0.277 kw=7 pf=0.99 model=1 daily=EV06
+
+New EnergyMeter.FeederMeter element=Transformer.Service terminal=1
+New Monitor.TransformerPower element=Transformer.Service terminal=1 mode=1
+New Monitor.EVBusVoltage element=Line.Secondary terminal=2 mode=0
+
+Set VoltageBases=[12.47, 0.48]
+CalcVoltageBases
+Set DataPath=output
+Set Mode=Daily StepSize=5m Number=288
+Solve
+Export Monitors TransformerPower
+Export Monitors EVBusVoltage
+Export Meters

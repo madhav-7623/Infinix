@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ev-chargesync
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /login.html
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: apple
