@@ -2,9 +2,12 @@ package com.hackathon.chargesync;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.core.Ordered;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,10 +30,17 @@ public class OAuthSecurityConfiguration {
     }
 
     @Bean
+    FilterRegistrationBean<CorsFilter> corsFilterRegistration(CorsConfigurationSource corsConfigurationSource) {
+        FilterRegistrationBean<CorsFilter> registration =
+                new FilterRegistrationBean<>(new CorsFilter(corsConfigurationSource));
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return registration;
+    }
+
+    @Bean
     SecurityFilterChain chargeSyncSecurity(HttpSecurity http, OAuthProviderRegistry providers,
-            OAuthLoginSuccessHandler oauthHandler, CorsConfigurationSource corsConfigurationSource) throws Exception {
+            OAuthLoginSuccessHandler oauthHandler) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource))
             // The demo's JSON endpoints use their own role-aware session checks. Apple returns via a
             // cross-site form POST; the OAuth state parameter remains validated by Spring Security.
             .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**", "/login/oauth2/code/apple"))
