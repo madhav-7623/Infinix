@@ -427,6 +427,17 @@ public class PortalService {
             station.availablePowerKw = round2(Math.max(0, station.maxOutputKw - station.allocatedKw));
             station.networkAllocatedKw = station.allocatedKw;
             station.networkLimitKw = station.maxOutputKw;
+            Map<String, Double> modeLoadsForStation = new LinkedHashMap<>();
+            modeLoadsForStation.put("ECO", 0.0);
+            modeLoadsForStation.put("NORMAL", 0.0);
+            modeLoadsForStation.put("HYPER", 0.0);
+            bookings.values().stream()
+                .filter(this::isActive)
+                .filter(booking -> station.id.equals(booking.assignedStationId))
+                .filter(booking -> dockForBooking(station, booking) != null)
+                .forEach(booking -> modeLoadsForStation.merge(
+                    normalizeChargeMode(booking.chargeMode), booking.allocatedKw, Double::sum));
+            station.chargeModeAllocatedKw = modeLoadsForStation;
         }
     }
 
@@ -633,6 +644,7 @@ public class PortalService {
         public double networkLimitKw;
         public int availableDocks;
         public int activeBookings;
+        public Map<String, Double> chargeModeAllocatedKw = new LinkedHashMap<>();
         public Station() { }
     }
 

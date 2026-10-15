@@ -25,7 +25,8 @@
     clearTimeout(toast.timer); toast.timer = setTimeout(() => el.classList.remove('show'), 3600);
   };
   async function api(path, options = {}) {
-    const response = await fetch(path, {headers:{'Content-Type':'application/json',...(options.headers || {})},...options});
+    const apiUrl = window.ChargeSync?.url ? window.ChargeSync.url(path) : path;
+    const response = await fetch(apiUrl, {credentials:'include',headers:{'Content-Type':'application/json',...(options.headers || {})},...options});
     if (!response.ok) {
       let message = `Request failed (${response.status})`;
       try { const body = await response.json(); message = body.detail || body.message || message; } catch {}
@@ -80,11 +81,17 @@
     const selected = select.value;
     const connector = $('connector').value.toUpperCase();
     const vehicleMaxKw = Number($('vehicleMaxKw').value) || 0;
-    const available = chargeModes.filter(mode => stations.some(station => {
-      const modeLoadKw = bookings.filter(b => active(b)
-        && b.assignedStationId === station.id
-        && String(b.chargeMode || 'NORMAL').toUpperCase() === mode.value)
-        .reduce((sum, b) => sum + Number(b.allocatedKw || 0), 0);
+    const selectedStation = $('locationMode').value === 'station'
+      ? stations.find(station => station.id === $('currentStation').value)
+      : null;
+    const stationCanServeMode = (station, mode) => {
+      const sharedLoads = station.chargeModeAllocatedKw;
+      const modeLoadKw = sharedLoads
+        ? Number(sharedLoads[mode.value] || 0)
+        : bookings.filter(b => active(b)
+          && b.assignedStationId === station.id
+          && String(b.chargeMode || 'NORMAL').toUpperCase() === mode.value)
+          .reduce((sum, b) => sum + Number(b.allocatedKw || 0), 0);
       const modeRoomKw = Math.max(0, Number(station.maxOutputKw || 120) * mode.factor - modeLoadKw);
       return station.docks.some(d => {
         if (d.status !== 'AVAILABLE'
@@ -95,9 +102,17 @@
           && Number(station.availablePowerKw) + 1e-7 >= requestedKw
           && modeRoomKw + 1e-7 >= requestedKw;
       });
-    }));
+    };
+    const eligibleStations = new Map(chargeModes.map(mode => [
+      mode.value, stations.filter(station => stationCanServeMode(station, mode))
+    ]));
+    const available = chargeModes.filter(mode => eligibleStations.get(mode.value).length > 0);
     select.innerHTML = available.length
-      ? available.map(mode => `<option value="${mode.value}">${mode.label}</option>`).join('')
+      ? available.map(mode => {
+          const currentCanServe = !selectedStation || stationCanServeMode(selectedStation, mode);
+          const label = currentCanServe ? mode.label : `${mode.label} · nearby station`;
+          return `<option value="${mode.value}">${label}</option>`;
+        }).join('')
       : '<option value="">No mode fits available power/sockets</option>';
     select.value = available.some(mode => mode.value === selected) ? selected : (available[0]?.value || '');
     $('bookButton').disabled = available.length === 0;
@@ -227,7 +242,7 @@
   }
 
   if (page === 'driver') {
-    $('locationMode').addEventListener('change',()=>{setLocationMode();renderSelectedStation();});
+    $('locationMode').addEventListener('change',()=>{setLocationMode();refreshChargeModeOptions();renderSelectedStation();});
     $('currentStation').addEventListener('change',()=>{refreshChargeModeOptions();renderSelectedStation();});
     $('connector').addEventListener('change',refreshChargeModeOptions);
     $('vehicleMaxKw').addEventListener('input',refreshChargeModeOptions);
