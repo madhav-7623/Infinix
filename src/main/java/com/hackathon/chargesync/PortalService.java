@@ -90,8 +90,7 @@ public class PortalService {
         if (originStation != null) {
             selectedDock = availableDock(originStation, connector, chargeMode, request.vehicleMaxKw);
             if (selectedDock != null) selected = originStation;
-        }
-        if (selected == null) {
+        } else {
             final double lat = originLat;
             final double lon = originLon;
             List<Station> nearest = stations.values().stream()
@@ -107,7 +106,9 @@ public class PortalService {
             }
         }
         if (selected == null || selectedDock == null) {
-            throw conflict("No nearby station has an available compatible dock and remaining power.");
+            throw conflict(originStation != null
+                ? "The selected station does not have an available compatible dock and enough power for this charge mode. Choose another mode or station."
+                : "No nearby station has an available compatible dock and remaining power.");
         }
 
         double tripSoc = request.estimatedTripKm > 0
@@ -143,8 +144,8 @@ public class PortalService {
         booking.pricePerKwh = pricePerKwhForMode(booking.chargeMode);
         booking.distanceKm = round2(distanceKm(originLat, originLon, selected.latitude, selected.longitude));
         booking.redirected = originStation != null && !originStation.id.equals(selected.id);
-        booking.routeMessage = booking.redirected
-            ? originStation.name + " is full or has no compatible dock; routed to the nearest station with an open dock."
+        booking.routeMessage = originStation == null
+            ? "Booked at the nearest station with an available compatible dock."
             : "Booked at your selected station.";
         booking.status = "WAITING_FOR_POWER";
         booking.createdAt = Instant.now().toString();

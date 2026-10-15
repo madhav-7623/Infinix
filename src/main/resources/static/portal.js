@@ -103,17 +103,17 @@
           && modeRoomKw + 1e-7 >= requestedKw;
       });
     };
+    const stationSelectionRequired = $('locationMode').value === 'station';
+    const candidateStations = stationSelectionRequired
+      ? (selectedStation ? [selectedStation] : [])
+      : stations;
     const eligibleStations = new Map(chargeModes.map(mode => [
-      mode.value, stations.filter(station => stationCanServeMode(station, mode))
+      mode.value, candidateStations.filter(station => stationCanServeMode(station, mode))
     ]));
     const available = chargeModes.filter(mode => eligibleStations.get(mode.value).length > 0);
     select.innerHTML = available.length
-      ? available.map(mode => {
-          const currentCanServe = !selectedStation || stationCanServeMode(selectedStation, mode);
-          const label = currentCanServe ? mode.label : `${mode.label} · nearby station`;
-          return `<option value="${mode.value}">${label}</option>`;
-        }).join('')
-      : '<option value="">No mode fits available power/sockets</option>';
+      ? available.map(mode => `<option value="${mode.value}">${mode.label}</option>`).join('')
+      : `<option value="">${stationSelectionRequired && !selectedStation ? 'Choose a station first' : 'No mode fits this station’s available power/sockets'}</option>`;
     select.value = available.some(mode => mode.value === selected) ? selected : (available[0]?.value || '');
     $('bookButton').disabled = available.length === 0;
   }
@@ -144,7 +144,7 @@
     try {
       const b = await api('/api/portal/bookings', {method:'POST',body:JSON.stringify(body)});
       const result = $('bookingResult'); result.className = `result show ${b.redirected ? 'warn' : ''}`;
-      result.innerHTML = `<h3>${b.redirected ? 'A nearby station has an open dock' : 'Your charging slot is reserved'}</h3><p>${esc(b.routeMessage)} Destination recorded: ${esc(b.destination)}. Go to <strong>${esc(b.assignedStationName)}</strong>, dock <strong>${esc(b.assignedDockId)}</strong> (${esc(b.connector)}). ${esc(b.chargeMode)} speed selected. ${b.canMakeTrip ? 'The current estimate reaches the trip target before departure.' : 'The estimate may not reach the trip target before departure; power may change as other sessions update.'}</p>
+      result.innerHTML = `<h3>Your charging slot is reserved</h3><p>${esc(b.routeMessage)} Destination recorded: ${esc(b.destination)}. Go to <strong>${esc(b.assignedStationName)}</strong>, dock <strong>${esc(b.assignedDockId)}</strong> (${esc(b.connector)}). ${esc(b.chargeMode)} speed selected. ${b.canMakeTrip ? 'The current estimate reaches the trip target before departure.' : 'The estimate may not reach the trip target before departure; power may change as other sessions update.'}</p>
         <div class="metrics"><div class="metric"><span>Live power allocation</span><strong>${number(b.allocatedKw)} kW (${number(b.allocatedKw * 1000,0)} W)</strong></div><div class="metric"><span>Approx. station distance</span><strong>${number(b.distanceKm,1)} km</strong></div><div class="metric"><span>Charge time at live power</span><strong>${b.estimatedMinutes >= 0 ? `${number(b.estimatedMinutes)} min` : 'Waiting'}</strong></div><div class="metric"><span>Price / remaining energy</span><strong>₹${number(b.pricePerKwh,2)} / ₹${number(b.estimatedCostInr,2)}</strong></div></div>
         <p style="margin-top:12px">Trip reserve included: ${number(b.requiredTripSoc,0)}% · target used: ${number(b.targetSoc,0)}% · priority: ${esc(b.priority)} (rank ${b.priorityRank || '—'}).</p>`;
       await refresh();
