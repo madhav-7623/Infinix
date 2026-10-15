@@ -2,7 +2,6 @@ package com.hackathon.chargesync;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -14,11 +13,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class OAuthSecurityConfiguration {
     @Bean
-    CorsConfigurationSource corsConfigurationSource(
-            @Value("${chargesync.cors.allowed-origins:https://localhost,capacitor://localhost}")
-            java.util.List<String> allowedOrigins) {
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cors = new CorsConfiguration();
-        cors.setAllowedOrigins(allowedOrigins);
+        // Capacitor's Android WebView uses https://localhost; iOS uses capacitor://localhost.
+        // Keep this allowlist explicit so a malformed Render environment variable cannot silently
+        // disable CORS for the native app.
+        cors.setAllowedOrigins(java.util.List.of("https://localhost", "capacitor://localhost"));
         cors.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cors.setAllowedHeaders(java.util.List.of("Content-Type", "Accept", "Authorization"));
         cors.setAllowCredentials(true);
