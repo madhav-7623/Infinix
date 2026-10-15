@@ -46,6 +46,14 @@
 
   roles.forEach(button => button.addEventListener('click', () => { role = button.dataset.roleChoice; clearError(); paint(); }));
   modes.forEach(button => button.addEventListener('click', () => { registering = button.dataset.modeChoice === 'register'; clearError(); paint(); }));
+  $('togglePassword').addEventListener('click', () => {
+    const password = $('password');
+    const showing = password.type === 'password';
+    password.type = showing ? 'text' : 'password';
+    $('togglePassword').textContent = showing ? 'Hide' : 'Show';
+    $('togglePassword').setAttribute('aria-label', showing ? 'Hide password' : 'Show password');
+    $('togglePassword').setAttribute('aria-pressed', String(showing));
+  });
 
   $('authForm').addEventListener('submit', async event => {
     event.preventDefault();
@@ -61,10 +69,10 @@
     $('submitAuth').disabled = true;
     $('submitAuth').textContent = registering ? 'Creating account…' : 'Signing in…';
     try {
-      const response = await fetch('./api/auth/' + (registering ? 'register' : 'login'), {method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(payload)});
+      const response = await fetch(window.ChargeSync.url('/api/auth/' + (registering ? 'register' : 'login')), {method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(payload)});
       const body = await response.json();
       if (!response.ok) throw new Error(body.detail || body.message || 'Could not sign in.');
-      location.href = body.role === 'STATION' ? './station.html' : './';
+      location.href = body.role === 'STATION' ? './station.html' : './index.html';
     } catch(error) {
       showError(error.message);
     } finally {
@@ -86,10 +94,10 @@
     document.querySelectorAll('[data-provider]').forEach(item => item.disabled = true);
     button.textContent = 'Connecting…';
     try {
-      const response = await fetch('./api/auth/oauth/start', {method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(payload)});
+      const response = await fetch(window.ChargeSync.url('/api/auth/oauth/start'), {method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(payload)});
       const body = await response.json();
       if (!response.ok) throw new Error(body.detail || body.message || 'Provider sign-in is not available.');
-      location.href = body.authorizationUrl;
+      location.href = new URL(body.authorizationUrl, window.CHARGESYNC_API_BASE_URL || location.origin).href;
     } catch(error) {
       showError(error.message);
       document.querySelectorAll('[data-provider]').forEach(item => item.disabled = false);
@@ -101,7 +109,7 @@
   const oauthError = new URLSearchParams(location.search).get('oauthError');
   if (oauthError) showError(oauthErrors[oauthError] || oauthErrors.failed);
   if (isFilePreview) $('localPreviewNote').classList.remove('hidden');
-  fetch('./api/auth/providers', {credentials:'same-origin'}).then(response => response.ok ? response.json() : {providers:[]}).then(data => {
+  fetch(window.ChargeSync.url('/api/auth/providers'), {credentials:'include'}).then(response => response.ok ? response.json() : {providers:[]}).then(data => {
     const providers = new Set(data.providers || []);
     document.querySelectorAll('[data-provider]').forEach(button => button.classList.toggle('hidden', !providers.has(button.dataset.provider)));
     $('socialSection').classList.toggle('hidden', providers.size === 0);

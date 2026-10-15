@@ -34,6 +34,11 @@
     .auth-card .field input::placeholder{color:#99a69f}
     .auth-card .field input:focus{border-color:#49a985;box-shadow:0 0 0 3px #e3f5ec}
     .auth-card .field input:-webkit-autofill{-webkit-text-fill-color:#182a22;box-shadow:0 0 0 1000px #fff inset}
+    .password-control{position:relative}
+    .auth-card .field .password-control input{padding-right:68px}
+    .password-toggle{position:absolute;top:50%;right:8px;transform:translateY(-50%);min-width:48px;min-height:34px;border:0;border-radius:7px;background:transparent;color:#087a58;font:700 12px Inter,"Segoe UI",Arial,sans-serif;cursor:pointer}
+    .password-toggle:hover{background:#eff8f3}
+    .password-toggle:focus-visible{outline:2px solid #49a985;outline-offset:1px}
     .station-create{border-top:1px solid #edf1ef;margin-top:3px;padding-top:14px}
     .station-create h3{font-size:13px;margin:0 0 11px;color:#283c33}
     .station-create .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -89,7 +94,7 @@
       <p id="localPreviewNote" class="local-preview-note hidden">This file is a visual preview. To sign in, start ChargeSync with <strong>run-windows.bat</strong> and open <strong>http://localhost:8082/login.html</strong>.</p>
       <form id="authForm" novalidate>
         <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="username" required placeholder="you@example.com"></div>
-        <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="Enter your password"></div>
+        <div class="field"><label for="password">Password</label><div class="password-control"><input id="password" name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="Enter your password"><button class="password-toggle" id="togglePassword" type="button" aria-controls="password" aria-label="Show password" aria-pressed="false">Show</button></div></div>
         <div id="stationFields" class="station-create hidden">
           <h3>Set up your virtual station</h3>
           <div class="formgrid">
@@ -111,9 +116,9 @@
         </div>
       </section>
       <p class="auth-help">Your account type controls which portal you can use. Demo accounts and provider sign-in are available when configured.</p>
-      <div id="demoLogin" class="demo-login"><strong>Demo accounts</strong><br>Driver: <code>driver@chargesync.demo</code> / <code>Driver123!</code><br>Station: <code>station@chargesync.demo</code> / <code>Station123!</code></div>
+      <div id="demoLogin" class="demo-login"><strong>Demo accounts</strong><br>Driver: <code>driver@chargesync.demo</code> / <code>Driver123!</code><br>Virtual station: <code>station@chargesync.demo</code> / <code>Station123!</code><br>East station: <code>station.east@chargesync.demo</code> / <code>EastStation123!</code><br>Central station: <code>station.central@chargesync.demo</code> / <code>CentralStation123!</code></div>
     </section>
   </main>
-  <script src="./login.js"></script>
+  <script src="./mobile-config.js"></script><script src="./login.js"></script>
 </body>
 </html>

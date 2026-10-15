@@ -27,6 +27,8 @@ public class AuthService {
         this.portal = portal;
         addSeedAccount("driver@chargesync.demo", "Driver123!", "DRIVER", null);
         addSeedAccount("station@chargesync.demo", "Station123!", "STATION", "virtual");
+        addSeedAccount("station.east@chargesync.demo", "EastStation123!", "STATION", "virtual-east");
+        addSeedAccount("station.central@chargesync.demo", "CentralStation123!", "STATION", "virtual-central");
     }
 
     public synchronized Account register(String emailInput, String password, String role, PortalService.StationRequest stationRequest) {
